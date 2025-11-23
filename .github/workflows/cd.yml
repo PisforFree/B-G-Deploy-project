@@ -55,3 +55,16 @@ jobs:
         run: |
           echo "Active environment: ${{ steps.determine_env.outputs.active }}"
           echo "Inactive environment: ${{ steps.determine_env.outputs.inactive }}"
+
+            - name: Select inactive EC2 IP
+        id: select_ec2
+        run: |
+          if [ "${{ steps.determine_env.outputs.inactive }}" = "green" ]; then
+            echo "ec2_ip=${{ secrets.GREEN_EC2_IP }}" >> $GITHUB_OUTPUT
+          else
+            echo "ec2_ip=${{ secrets.BLUE_EC2_IP }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Show selected EC2
+        run: echo "Deploying to EC2: ${{ steps.select_ec2.outputs.ec2_ip }}"
+
