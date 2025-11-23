@@ -66,5 +66,6 @@ jobs:
           fi
 
       - name: Show selected EC2
-        run: echo "Deploying to EC2: ${{ steps.select_ec2.outputs.ec2_ip }}"
+        run: |
+          echo "Deploying to EC2: ${{ steps.select_ec2.outputs.ec2_ip }}"
 
