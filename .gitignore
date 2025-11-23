@@ -1,0 +1,25 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+
+# Local tfvars files
+*.tfvars
+*.tfstate
+*.tfstate.backup
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+
+# SSH keys (never commit keys)
+*.pem
+*.key
+
+# Docker artifacts
+*.tar
