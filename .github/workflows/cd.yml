@@ -30,3 +30,28 @@ jobs:
 
       - name: Verify AWS identity
         run: aws sts get-caller-identity
+
+            - name: Get ALB listener info
+        run: |
+          aws elbv2 describe-listeners \
+            --listener-arns ${{ secrets.ALB_LISTENER_ARN }} \
+            --query "Listeners[0].DefaultActions[0].TargetGroupArn" \
+            --output text > current_tg.txt
+
+      - name: Determine active environment
+        id: determine_env
+        run: |
+          CURRENT_TG=$(cat current_tg.txt)
+
+          if [ "$CURRENT_TG" = "${{ secrets.BLUE_TG_ARN }}" ]; then
+            echo "active=blue" >> $GITHUB_OUTPUT
+            echo "inactive=green" >> $GITHUB_OUTPUT
+          else
+            echo "active=green" >> $GITHUB_OUTPUT
+            echo "inactive=blue" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Show determined environments
+        run: |
+          echo "Active environment: ${{ steps.determine_env.outputs.active }}"
+          echo "Inactive environment: ${{ steps.determine_env.outputs.inactive }}"
