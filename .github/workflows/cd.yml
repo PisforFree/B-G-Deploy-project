@@ -69,3 +69,13 @@ jobs:
         run: |
           echo "Deploying to EC2: ${{ steps.select_ec2.outputs.ec2_ip }}"
 
+      - name: Add SSH key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key.pem
+          chmod 600 ssh_key.pem
+
+      - name: Test SSH connection to inactive EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem ec2-user@${{ steps.select_ec2.outputs.ec2_ip }} "echo 'SSH connection successful'"
+
+
