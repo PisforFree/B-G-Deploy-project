@@ -31,7 +31,7 @@ jobs:
       - name: Verify AWS identity
         run: aws sts get-caller-identity
 
-            - name: Get ALB listener info
+      - name: Get ALB listener info
         run: |
           aws elbv2 describe-listeners \
             --listener-arns ${{ secrets.ALB_LISTENER_ARN }} \
