@@ -56,7 +56,7 @@ jobs:
           echo "Active environment: ${{ steps.determine_env.outputs.active }}"
           echo "Inactive environment: ${{ steps.determine_env.outputs.inactive }}"
 
-            - name: Select inactive EC2 IP
+      - name: Select inactive EC2 IP
         id: select_ec2
         run: |
           if [ "${{ steps.determine_env.outputs.inactive }}" = "green" ]; then
@@ -66,5 +66,6 @@ jobs:
           fi
 
       - name: Show selected EC2
-        run: echo "Deploying to EC2: ${{ steps.select_ec2.outputs.ec2_ip }}"
+        run: |
+          echo "Deploying to EC2: ${{ steps.select_ec2.outputs.ec2_ip }}"
 
