@@ -10,6 +10,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    IMAGE_NAME: ghcr.io/pisforfree/blue-green-deploy-app
+    IMAGE_TAG: ${{ github.sha }}
 
     env:
       AWS_REGION: us-east-2
@@ -78,4 +80,35 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ssh_key.pem ec2-user@${{ steps.select_ec2.outputs.ec2_ip }} "echo 'SSH connection successful'"
 
+      - name: Deploy container to inactive EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem ec2-user@${{ steps.select_ec2.outputs.ec2_ip }} << 'EOF'
+            set -e
 
+            echo "Logging in to GHCR..."
+            echo "${GHCR_TOKEN}" | sudo docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+
+            echo "Pulling image ${IMAGE_NAME}:${IMAGE_TAG}..."
+            sudo docker pull "${IMAGE_NAME}:${IMAGE_TAG}"
+
+            echo "Stopping existing container (if any)..."
+            sudo docker rm -f blue-green-app || true
+
+            echo "Starting new container..."
+            sudo docker run -d \
+              --name blue-green-app \
+              -p 80:80 \
+              --restart=always \
+              "${IMAGE_NAME}:${IMAGE_TAG}"
+
+            echo "Checking local /healthz..."
+            # -f makes curl exit non-zero if HTTP code is not 2xx
+            curl -f http://localhost/healthz
+
+            echo "Deployment to inactive EC2 succeeded."
+          EOF
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
