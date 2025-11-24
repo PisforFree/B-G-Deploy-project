@@ -80,7 +80,7 @@ jobs:
 
       - name: Deploy container to inactive EC2
         run: |
-          ssh -o StrictHostKeyChecking=no -i ssh_key.pem ec2-user@${{ steps.select_ec2.outputs.ec2_ip }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ssh_key.pem ec2-user@${{ steps.select_ec2.outputs.ec2_ip }} << EOF
             set -e
 
             echo "Logging in to GHCR..."
@@ -100,7 +100,6 @@ jobs:
               "${IMAGE_NAME}:${IMAGE_TAG}"
 
             echo "Checking local /healthz..."
-            # -f makes curl exit non-zero if HTTP code is not 2xx
             curl -f http://localhost/healthz
 
             echo "Deployment to inactive EC2 succeeded."
@@ -108,5 +107,6 @@ jobs:
         env:
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          IMAGE_NAME: ghcr.io/pisforfree/blue-green-deploy-app
+          IMAGE_TAG: ${{ github.sha }}
+
