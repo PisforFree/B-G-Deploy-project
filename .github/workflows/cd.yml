@@ -10,8 +10,6 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    IMAGE_NAME: ghcr.io/pisforfree/blue-green-deploy-app
-    IMAGE_TAG: ${{ github.sha }}
 
     env:
       AWS_REGION: us-east-2
