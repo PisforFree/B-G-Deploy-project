@@ -122,3 +122,14 @@ jobs:
           IMAGE_NAME: ghcr.io/pisforfree/blue-green-deploy-app
           IMAGE_TAG: ${{ github.sha }}
 
+      - name: Switch ALB listener to inactive target group
+        run: |
+          echo "Switching ALB listener to inactive target group..."
+          aws elbv2 modify-listener \
+            --listener-arn "${ALB_LISTENER_ARN}" \
+            --default-actions Type=forward,TargetGroupArn="${INACTIVE_TG_ARN}"
+      env:
+    # Hard-code or set these via previous steps / env:
+        ALB_LISTENER_ARN: arn:aws:elasticloadbalancing:us-east-2:803767876973:listener/app/blue-green-deploy-alb/7da22ee43e114240/a0ad0380d8327b38
+        INACTIVE_TG_ARN:  arn:aws:elasticloadbalancing:us-east-2:803767876973:targetgroup/blue-green-deploy-tg-green/88a4eaada7c81685
+
