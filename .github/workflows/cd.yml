@@ -133,3 +133,29 @@ jobs:
           ALB_LISTENER_ARN: arn:aws:elasticloadbalancing:us-east-2:803767876973:listener/app/blue-green-deploy-alb/7da22ee43e114240/a0ad0380d8327b38
           INACTIVE_TG_ARN:  arn:aws:elasticloadbalancing:us-east-2:803767876973:targetgroup/blue-green-deploy-tg-green/88a4eaada7c81685
 
+      - name: Verify ALB health and rollback if needed
+        run: |
+          set -e
+
+          echo "Checking ALB /healthz after switch..."
+          if curl -fsS "http://${ALB_DNS_NAME}/healthz" > /dev/null; then
+          echo "Post-switch ALB health check OK."
+          exit 0
+          fi
+
+          echo "Post-switch ALB health check FAILED. Rolling back to previous target group..."
+          aws elbv2 modify-listener \
+            --listener-arn "${ALB_LISTENER_ARN}" \
+            --default-actions Type=forward,TargetGroupArn="${PREVIOUS_TG_ARN}"
+
+          echo "Rollback complete."
+          exit 1
+        env:
+    # Same listener ARN you used in the switch step
+          ALB_LISTENER_ARN: arn:aws:elasticloadbalancing:us-east-2:803767876973:listener/app/blue-green-deploy-alb/7da22ee43e114240/a0ad0380d8327b38
+
+    # ALB DNS from `terraform output alb_dns_name` (no http://)
+          ALB_DNS_NAME: blue-green-deploy-alb-1791361257.us-east-2.elb.amazonaws.com
+
+    # The TG that was active *before* this deploy (your “old good” env)
+          PREVIOUS_TG_ARN: arn:aws:elasticloadbalancing:us-east-2:803767876973:targetgroup/blue-green-deploy-tg-blue/2507b9440df2cf15
