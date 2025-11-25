@@ -128,8 +128,8 @@ jobs:
           aws elbv2 modify-listener \
             --listener-arn "${ALB_LISTENER_ARN}" \
             --default-actions Type=forward,TargetGroupArn="${INACTIVE_TG_ARN}"
-      env:
+        env:
     # Hard-code or set these via previous steps / env:
-        ALB_LISTENER_ARN: arn:aws:elasticloadbalancing:us-east-2:803767876973:listener/app/blue-green-deploy-alb/7da22ee43e114240/a0ad0380d8327b38
-        INACTIVE_TG_ARN:  arn:aws:elasticloadbalancing:us-east-2:803767876973:targetgroup/blue-green-deploy-tg-green/88a4eaada7c81685
+          ALB_LISTENER_ARN: arn:aws:elasticloadbalancing:us-east-2:803767876973:listener/app/blue-green-deploy-alb/7da22ee43e114240/a0ad0380d8327b38
+          INACTIVE_TG_ARN:  arn:aws:elasticloadbalancing:us-east-2:803767876973:targetgroup/blue-green-deploy-tg-green/88a4eaada7c81685
 
